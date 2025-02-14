@@ -1,0 +1,2 @@
+Databsase SQLite3
+No authentication and authorization needed, assume there is a single user

@@ -1,0 +1,83 @@
+---
+description: Rules for Flask code
+globs: /backend-flask/*
+---
+
+# Your rule content
+
+Always say Hi Markus! before you start.
+
+- You can @ files here
+- You can use markdown but dont have to
+
+Always Use Application Factories
+
+# Bad - Global flask instance
+app = Flask(__name__)
+
+# Good - Using application factory
+def create_app(config=None):
+    app = Flask(__name__)
+    
+    if config:
+        app.config.from_object(config)
+        
+    # Register blueprints, extensions, etc.
+    register_blueprints(app)
+    register_extensions(app)
+    
+    return app
+
+Application factories make your code more modular, easier to test, and allow for different configurations (development, testing, production).
+
+
+Use Blueprints for Route Organization
+
+# Bad - All routes in main app file
+@app.route('/')
+def index():
+    return 'Hello'
+
+# Good - Using blueprints
+from flask import Blueprint
+
+auth = Blueprint('auth', __name__)
+
+@auth.route('/login')
+def login():
+    return 'Login'
+
+# In your app factory:
+def create_app():
+    app = Flask(__name__)
+    app.register_blueprint(auth, url_prefix='/auth')
+    return app
+
+Blueprints help organize related routes and views, making your code more maintainable and scalable.
+
+
+Always Handle Configuration Properly
+
+# Bad - Hardcoded configuration
+app.config['SECRET_KEY'] = 'your-secret-key'
+app.config['DATABASE_URL'] = 'postgresql://...'
+
+# Good - Using configuration classes and environment variables
+import os
+
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+
+class ProductionConfig(Config):
+    DEBUG = False
+
+# In your app factory:
+app.config.from_object('config.ProductionConfig')
+
+Never hardcode sensitive information or configuration values. Use environment variables and configuration classes to manage different environments properly.
+Following these rules will help you build more maintainable, secure, and scalable Flask applications.
+
